@@ -1,24 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Art Social App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const ArtVault(),
-    );
-  }
-}
+import 'api_service.dart'; // must define VaultItem and fetchVaultItems()
 
 class ArtVault extends StatefulWidget {
   const ArtVault({super.key});
@@ -28,7 +9,21 @@ class ArtVault extends StatefulWidget {
 }
 
 class ArtVaultState extends State<ArtVault> {
-  int quantity = 1;
+  late Future<List<VaultItem>> _vaultItemsFuture;
+  // Keep quantity per item by index
+  final Map<int, int> quantities = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _vaultItemsFuture = ApiService.fetchVaultItems();
+  }
+
+  void _onQuantityChanged(int index, int newQuantity) {
+    setState(() {
+      quantities[index] = newQuantity;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,109 +35,39 @@ class ArtVaultState extends State<ArtVault> {
         title: const TopBar(),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildCart(
-              username: 'Baching',
-              productname: 'Crochet Bag',
-              variation: 'small',
-              quantity: quantity,
-              price: 150.00,
-              iconPath: 'graphics/icons/icon2.jpg',
-              imagePath: 'graphics/products/product1.jpg',
-              onQuantityChanged: (newQuantity) {
-                setState(() {
-                  quantity = newQuantity;
-                });
-              },
+      body: FutureBuilder<List<VaultItem>>(
+        future: _vaultItemsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No items in your vault.'));
+          }
+
+          final items = snapshot.data!;
+          return SingleChildScrollView(
+            child: Column(
+              children: List.generate(items.length, (index) {
+                final item = items[index];
+                final quantity = quantities[index] ?? item.quantity;
+
+                return _buildCart(
+                  username: item.username,
+                  productname: item.productname,
+                  variation: item.variation,
+                  quantity: quantity,
+                  price: item.price,
+                  iconPath: item.iconUrl, // Assuming this is a network URL
+                  imagePath: item.imageUrl, // Assuming this is a network URL
+                  onQuantityChanged: (newQty) => _onQuantityChanged(index, newQty),
+                  useNetworkImages: true,
+                );
+              }),
             ),
-            _buildCart(
-              username: 'Haizzle',
-              productname: 'Clay Hippers',
-              variation: 'small',
-              quantity: quantity,
-              price: 100.00,
-              iconPath: 'graphics/icons/icon3.jpg',
-              imagePath: 'graphics/products/product2.jpg',
-              onQuantityChanged: (newQuantity) {
-                setState(() {
-                  quantity = newQuantity;
-                });
-              },
-            ),
-            _buildCart(
-              username: 'Papricart',
-              productname: 'Keychains',
-              variation: 'Calcifier',
-              quantity: quantity,
-              price: 85.00,
-              iconPath: 'graphics/icons/icon4.jpg',
-              imagePath: 'graphics/products/product3.jpg',
-              onQuantityChanged: (newQuantity) {
-                setState(() {
-                  quantity = newQuantity;
-                });
-              },
-            ),
-            _buildCart(
-              username: 'Fufi',
-              productname: 'Resin Coaster',
-              variation: 'Bunny-Medium',
-              quantity: quantity,
-              price: 150.00,
-              iconPath: 'graphics/icons/icon5.jpg',
-              imagePath: 'graphics/products/product4.jpg',
-              onQuantityChanged: (newQuantity) {
-                setState(() {
-                  quantity = newQuantity;
-                });
-              },
-            ),
-            _buildCart(
-              username: 'Zeon',
-              productname: 'Simple Vase',
-              variation: 'small',
-              quantity: quantity,
-              price: 175.00,
-              iconPath: 'graphics/icons/icon6.jpg',
-              imagePath: 'graphics/products/product5.jpg',
-              onQuantityChanged: (newQuantity) {
-                setState(() {
-                  quantity = newQuantity;
-                });
-              },
-            ),
-            _buildCart(
-              username: 'Rizzle',
-              productname: 'Bunbun Stickers',
-              variation: 'Pack-A',
-              quantity: quantity,
-              price: 100.00,
-              iconPath: 'graphics/icons/icon7.jpg',
-              imagePath: 'graphics/products/product6.jpg',
-              onQuantityChanged: (newQuantity) {
-                setState(() {
-                  quantity = newQuantity;
-                });
-              },
-            ),
-            _buildCart(
-              username: 'MeiMei',
-              productname: 'Butterfly Painting',
-              variation: '10x10',
-              quantity: quantity,
-              price: 250.00,
-              iconPath: 'graphics/icons/icon10.jpg',
-              imagePath: 'graphics/products/product7.jpg',
-              onQuantityChanged: (newQuantity) {
-                setState(() {
-                  quantity = newQuantity;
-                });
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
       bottomNavigationBar: BottomAppBar(
         child: Container(
@@ -195,6 +120,7 @@ Widget _buildCart({
   required String iconPath,
   required String imagePath,
   required ValueChanged<int> onQuantityChanged,
+  bool useNetworkImages = false, // add flag to decide image type
 }) {
   return Container(
     color: Colors.white,
@@ -213,7 +139,9 @@ Widget _buildCart({
                   const SizedBox(width: 15),
                   CircleAvatar(
                     radius: 13,
-                    backgroundImage: AssetImage(iconPath),
+                    backgroundImage: useNetworkImages
+                        ? NetworkImage(iconPath)
+                        : AssetImage(iconPath) as ImageProvider,
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -264,7 +192,7 @@ Widget _buildCart({
                     width: 17,
                     height: 17,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Color(0xffbdbec0), width: 1),
+                      border: Border.all(color: const Color(0xffbdbec0), width: 1),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -274,12 +202,19 @@ Widget _buildCart({
                   top: 7,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(5),
-                    child: Image.asset(
-                      imagePath,
-                      width: 65,
-                      height: 66.182,
-                      fit: BoxFit.cover,
-                    ),
+                    child: useNetworkImages
+                        ? Image.network(
+                            imagePath,
+                            width: 65,
+                            height: 66.182,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            imagePath,
+                            width: 65,
+                            height: 66.182,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
                 Positioned(
@@ -337,7 +272,7 @@ class QuantitySelector extends StatelessWidget {
       top: 30,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Color(0xffd9d9d9), width: 1.5),
+          border: Border.all(color: const Color(0xffd9d9d9), width: 1.5),
           borderRadius: BorderRadius.circular(5),
         ),
         child: Row(
@@ -359,7 +294,7 @@ class QuantitySelector extends StatelessWidget {
               height: 17,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                border: Border.all(color: Color(0xffd9d9d9), width: 1),
+                border: Border.all(color: const Color(0xffd9d9d9), width: 1),
               ),
               child: Text(
                 quantity.toString(),

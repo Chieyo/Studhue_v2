@@ -3,9 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-//Post
-  class Post {
+// Post model
+class Post {
   final String username;
   final String profession;
   final bool isVerified;
@@ -31,16 +30,60 @@ import 'package:shared_preferences/shared_preferences.dart';
   }
 }
 
+// VaultItem model
+class VaultItem {
+  final String username;
+  final String productname;
+  final String variation;
+  final int quantity;
+  final double price;
+  final String iconUrl;
+  final String imageUrl;
+
+  VaultItem({
+    required this.username,
+    required this.productname,
+    required this.variation,
+    required this.quantity,
+    required this.price,
+    required this.iconUrl,
+    required this.imageUrl,
+  });
+
+  factory VaultItem.fromJson(Map<String, dynamic> json) {
+    return VaultItem(
+      username: json['username'] as String,
+      productname: json['productname'] as String,
+      variation: json['variation'] as String,
+      quantity: json['quantity'] as int,
+      price: (json['price'] as num).toDouble(),
+      iconUrl: json['iconUrl'] as String,
+      imageUrl: json['imageUrl'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'username': username,
+      'productname': productname,
+      'variation': variation,
+      'quantity': quantity,
+      'price': price,
+      'iconUrl': iconUrl,
+      'imageUrl': imageUrl,
+    };
+  }
+}
+
 class ApiService {
   static const String baseUrl = 'http://192.168.0.111:3000/api';
 
   static final _logger = Logger('ApiService');
 
-  // Initialize logging — call this once, e.g. in main()
+  // Initialize logging — call once, e.g. in main()
   static void setupLogging() {
     Logger.root.level = Level.ALL; // Capture all logs
     Logger.root.onRecord.listen((record) {
-      // Customize this if you want to write logs to a file or remote server
       print('${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}');
     });
   }
@@ -54,10 +97,7 @@ class ApiService {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-      }),
+      body: jsonEncode({'email': email, 'password': password}),
     );
 
     if (response.statusCode == 200) {
@@ -80,11 +120,7 @@ class ApiService {
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-        'email': email,
-      }),
+      body: jsonEncode({'username': username, 'password': password, 'email': email}),
     );
 
     if (response.statusCode == 201) {
@@ -123,19 +159,9 @@ class ApiService {
     }
   }
 
-  // Fetch posts for logged in user
+  // Fetch posts
   static Future<List<Post>> fetchPosts() async {
-    // If you need JWT token:
-    // final prefs = await SharedPreferences.getInstance();
-    // final token = prefs.getString('jwt_token');
-
-    final response = await http.get(
-      Uri.parse('$baseUrl/posts'),
-      // headers: {
-      //   'Authorization': 'Bearer $token',
-      //   'Content-Type': 'application/json',
-      // },
-    );
+    final response = await http.get(Uri.parse('$baseUrl/posts'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -144,5 +170,29 @@ class ApiService {
       throw Exception('Failed to fetch posts');
     }
   }
-}
 
+  // Fetch vault items
+  static Future<List<VaultItem>> fetchVaultItems() async {
+    final response = await http.get(Uri.parse('$baseUrl/vault'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonData = json.decode(response.body);
+      return jsonData.map((item) => VaultItem.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load vault items');
+    }
+  }
+
+  // Add product to vault
+  static Future<void> addProductToVault(Map<String, dynamic> productData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/vault/add'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(productData),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to add product to vault');
+    }
+  }
+}
