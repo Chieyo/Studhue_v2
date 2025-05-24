@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Initialize SQLite database
-const db = new sqlite3.Database('./database.db', (err) => {
+const db = new sqlite3.Database('./DB/database.sqlite', (err) => {
   if (err) {
     console.error('Database connection error:', err.message);
   } else {
@@ -18,7 +18,7 @@ const db = new sqlite3.Database('./database.db', (err) => {
   }
 });
 
-// Routes
+// Routes (pass db instance)
 const userRoutes = require('./routes/users');
 const postRoutes = require('./routes/posts');
 const followershipRoutes = require('./routes/followership');
@@ -29,9 +29,9 @@ app.use('/api/posts', postRoutes(db));
 app.use('/api/followership', followershipRoutes(db));
 app.use('/api/pinboards', pinboardRoutes(db));
 
-// Initialize DB schema on startup
+// Initialize DB schema on startup (fix folder casing here)
 try {
-  require('./DB/init');
+  require('./DB/init')(db); // pass db if your init exports a function
 } catch (error) {
   console.error('Failed to initialize DB:', error.message);
 }
