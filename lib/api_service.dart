@@ -195,4 +195,23 @@ class ApiService {
       throw Exception('Failed to add product to vault');
     }
   }
+
+  Future<List<Map<String, String>>> fetchPinboards(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/pinboards'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      return data.map((item) {
+        return {
+          'name': item['name']?.toString() ?? '',
+          'coverImg': item['coverImg']?.toString() ?? '',
+        };
+      }).toList();
+    } else {
+      throw Exception('Failed to load pinboards');
+    }
+  }
 }

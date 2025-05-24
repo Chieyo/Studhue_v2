@@ -12,26 +12,44 @@ module.exports = function (db) {
     res.json({ message: "User route works!" });
   });
 
-  // Signup
-  router.post('/signup', async (req, res) => {
-    const { email, username, password } = req.body;
-    if (!email || !username || !password) {
-      return res.status(400).json({ message: 'Missing fields' });
+  // Signup with duplicate check
+router.post('/signup', async (req, res) => {
+  const { email, username, password } = req.body;
+
+  if (!email || !username || !password) {
+    return res.status(400).json({ message: 'Missing fields' });
+  }
+
+  // Check if username or email already exists
+  db.get('SELECT * FROM Users WHERE username = ? OR email = ?', [username, email], async (err, existingUser) => {
+    if (err) return res.status(500).json({ message: 'DB error', error: err.message });
+
+    if (existingUser) {
+      return res.status(409).json({
+        message: 'Username or email already exists',
+      });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    db.run(
-      'INSERT INTO Users (user_ID, email, username, password, account_date_creation) VALUES (?, ?, ?, ?, ?)',
-      [Date.now().toString(), email, username, hashedPassword, new Date().toISOString()],
-      function (err) {
-        if (err) {
-          return res.status(400).json({ message: 'User already exists or DB error', error: err.message });
+      db.run(
+        'INSERT INTO Users (user_ID, email, username, password, account_date_creation) VALUES (?, ?, ?, ?, ?)',
+        [Date.now().toString(), email, username, hashedPassword, new Date().toISOString()],
+        function (err) {
+          if (err) {
+            return res.status(500).json({ message: 'Signup failed', error: err.message });
+          }
+
+          res.status(201).json({ message: 'User created successfully' });
         }
-        res.json({ message: 'User created' });
-      }
-    );
+      );
+    } catch (hashError) {
+      res.status(500).json({ message: 'Error hashing password', error: hashError.message });
+    }
   });
+  });
+
 
   // Login
   router.post('/login', (req, res) => {
