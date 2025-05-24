@@ -71,6 +71,7 @@ flutter:
     - graphics/back_button.png
     - graphics/Typography.png
     - graphics/Back Button.png
+    - graphics/Homeheader.png
     - graphics/Chat.png
     - graphics/Comment.png
     - graphics/Dots.png

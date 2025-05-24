@@ -9,24 +9,24 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;
 
   void _handleLogin() async {
-    final email = emailController.text.trim();
+    final username = usernameController.text.trim();
     final password = passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      _showDialog('Please enter both email and password');
+    if (username.isEmpty || password.isEmpty) {
+      _showDialog('Please enter both username and password');
       return;
     }
 
     setState(() => isLoading = true);
 
     try {
-      final response = await ApiService.loginUser(email: email, password: password);
+      final response = await ApiService.loginUser(username: username, password: password);
       // Assuming response contains a token and message
       if (response['token'] != null) {
         // Save token or do something here, e.g., Navigator to home
@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    emailController.dispose();
+    usernameController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -126,8 +126,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 25),
 
-                        // Email field
-                        _buildInputField('Email', emailController),
+                        // Username field
+                        _buildInputField('Username', usernameController),
 
                         const SizedBox(height: 15),
 
