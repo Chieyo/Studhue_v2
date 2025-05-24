@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
 import 'welcome_screen.dart';
-import 'login_screen1.dart';
-import 'login_screen2.dart';
+import 'landing_screen.dart';
+import 'login_screen.dart';
 import 'signup_screen.dart';
 import 'home_screen.dart';
 import 'artvault_screen.dart';
 import 'notifications_screen.dart';
 import 'pinboards.dart';
 import 'profile.dart';
+import 'api_service.dart';
 
 void main() {
+  ApiService.setupLogging();
   runApp(const MyApp());
 }
 
@@ -28,8 +30,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(),
         '/welcome': (context) => const WelcomeScreen(),
-        '/login': (context) => const LoginScreen1(),
-        '/log': (context) => const LoginScreen2(),
+        '/login': (context) => const LandingScreen(),
+        '/log': (context) => const LoginScreen(),
         '/signup': (context) => const SignUpScreen(),
         '/home': (context) => const HomeScreen(),
         '/vault': (context) => const ArtVault(),

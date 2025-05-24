@@ -4,6 +4,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
+const host = '192.168.0.111';
 
 // Middleware
 app.use(cors());
@@ -37,6 +38,6 @@ try {
 }
 
 // Start server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(port, host, () => {
+  console.log(`Server is running on http://${host}:${port}`);
 });

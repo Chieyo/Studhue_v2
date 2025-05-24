@@ -4,8 +4,7 @@ module.exports = function (db) {
       CREATE TABLE IF NOT EXISTS Users (
         user_ID TEXT PRIMARY KEY,
         email TEXT UNIQUE,
-        first_name TEXT,
-        last_name TEXT,
+        full_name TEXT,
         username TEXT UNIQUE,
         age INTEGER,
         birthdate TEXT,           -- Store dates as ISO8601 string

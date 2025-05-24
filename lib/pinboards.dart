@@ -149,7 +149,7 @@ class PinboardsScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         gradient: LinearGradient(
                           colors: [
-                            Colors.black.withOpacity(0.7),
+                            Colors.black.withAlpha((0.7 * 255).round()),
                             Colors.transparent
                           ],
                           begin: Alignment.bottomCenter,

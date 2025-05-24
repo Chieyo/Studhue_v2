@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const LoginScreen1());
-}
-
-class LoginScreen1 extends StatelessWidget {
-  const LoginScreen1({super.key});
+class LandingScreen extends StatelessWidget {
+  const LandingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +47,7 @@ class LoginScreen1 extends StatelessWidget {
                     horizontal: 15,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(
-                      162,
-                      255,
-                      255,
-                      255,
-                    ), // Semi-transparent box
+                    color: const Color.fromARGB(162, 255, 255, 255),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Column(
@@ -65,11 +56,10 @@ class LoginScreen1 extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: 50,
-                        child: ElevatedButton(onPressed: () {Navigator.pushNamed(context, "/log");
-                              },
-                            // Handle login action
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pushNamed(context, "/log"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF0792CD),
+                            backgroundColor: const Color(0xFF0792CD),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(13),
                             ),
@@ -117,11 +107,10 @@ class LoginScreen1 extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: 50,
-                        child: ElevatedButton(onPressed: ()  // Navigate to sign up screen
-                        {Navigator.pushNamed(context, "/signup");}
-                          ,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pushNamed(context, "/signup"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFDA0590),
+                            backgroundColor: const Color(0xFFDA0590),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(13),
                             ),

@@ -1,24 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'StudHue',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const HomeScreen(),
-    );
-  }
-}
+import 'api_service.dart'; // Import your existing API service
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,6 +10,13 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   bool _isSearchBarVisible = false;
+  late Future<List<Post>> _postsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _postsFuture = ApiService.fetchPosts();
+  }
 
   void _toggleSearchBar() {
     setState(() {
@@ -58,42 +46,35 @@ class HomeScreenState extends State<HomeScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 70), // space for nav bar
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                _buildPost(
-                  username: 'Joerizzle',
-                  profession: 'Stained Glass Artist',
-                  isVerified: true,
-                  verifiedOffset: 128,
-                  postImagePath: 'graphics/feed posts/fpost4.jpg',
-                  iconPath: 'graphics/icons/icon3.png',
-                ),
-                _buildPost(
-                  username: 'BIBIMBAP',
-                  profession: 'Digital Artist',
-                  isVerified: true,
-                  verifiedOffset: 134,
-                  postImagePath: 'graphics/feed posts/fpost1.jpg',
-                  iconPath: 'graphics/icons/icon11.png',
-                ),
-                _buildPost(
-                  username: 'Mona_Liz',
-                  profession: 'Traditional Painter',
-                  isVerified: true,
-                  verifiedOffset: 130,
-                  postImagePath: 'graphics/feed posts/fpost2.jpg',
-                  iconPath: 'graphics/icons/icon7.png',
-                ),
-                _buildPost(
-                  username: 'Dreamweaver',
-                  profession: 'Crochet Artist',
-                  isVerified: true,
-                  verifiedOffset: 128,
-                  postImagePath: 'graphics/feed posts/fpost3.jpg',
-                  iconPath: 'graphics/icons/icon9.png',
-                ),
-              ],
+            child: FutureBuilder<List<Post>>(
+              future: _postsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No posts available.'));
+                }
+
+                final posts = snapshot.data!;
+
+                return ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    final post = posts[index];
+                    return _buildPost(
+                      username: post.username,
+                      profession: post.profession,
+                      isVerified: post.isVerified,
+                      verifiedOffset: 128,
+                      postImagePath: post.postImagePath,
+                      iconPath: post.iconPath,
+                    );
+                  },
+                );
+              },
             ),
           ),
           Positioned(
@@ -106,7 +87,7 @@ class HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withAlpha((0.5 * 255).round()),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -164,7 +145,7 @@ class HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
             child: Row(
               children: [
-                Image.asset(iconPath, width: 43, height: 43,),
+                Image.asset(iconPath, width: 43, height: 43),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,11 +162,12 @@ class HomeScreenState extends State<HomeScreen> {
                         if (isVerified) ...[
                           const SizedBox(width: 4),
                           Image.asset(
-                              'graphics/Verified Icon.png',
-                              width: 13,
-                              height: 12,
-                              fit: BoxFit.contain, // ensures the aspect ratio is preserved
-                            ),                        ],
+                            'graphics/Verified Icon.png',
+                            width: 13,
+                            height: 12,
+                            fit: BoxFit.contain,
+                          ),
+                        ],
                       ],
                     ),
                     Text(
@@ -211,9 +193,9 @@ class HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
             child: Row(
               children: [
-                Image.asset('graphics/Heart.png', width: 25.5, height: 22.667,),
+                Image.asset('graphics/Heart.png', width: 25.5, height: 22.667),
                 const SizedBox(width: 15),
-                Image.asset('graphics/Comment.png', width: 25.5, height: 22.667,),
+                Image.asset('graphics/Comment.png', width: 25.5, height: 22.667),
                 const SizedBox(width: 15),
                 const Icon(Icons.send_outlined, size: 24),
                 const Spacer(),

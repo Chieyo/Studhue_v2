@@ -7,6 +7,11 @@ const SECRET_KEY = 'your_secret_key'; // Replace with env var in production
 module.exports = function (db) {
   const router = express.Router();
 
+  // Test route to check if the user route is working
+  router.get('/test', (req, res) => {
+    res.json({ message: "User route works!" });
+  });
+
   // Signup
   router.post('/signup', async (req, res) => {
     const { email, username, password } = req.body;
