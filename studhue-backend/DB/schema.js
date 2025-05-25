@@ -11,8 +11,8 @@ module.exports = function (db) {
         address TEXT,
         phone_number TEXT,        -- Store phone as text to preserve leading zeros
         password TEXT,
+        category TEXT,            -- e.g., 'regular-user', 'digital-artist', 'artist'
         account_date_creation TEXT
-
       )
     `);
 

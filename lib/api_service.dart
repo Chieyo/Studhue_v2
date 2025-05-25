@@ -88,6 +88,12 @@ class ApiService {
     });
   }
 
+  // Get JWT token from SharedPreferences
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('jwt_token');
+  }
+
   // LOGIN
   static Future<Map<String, dynamic>> loginUser({
     required String username,
@@ -111,16 +117,30 @@ class ApiService {
 
   // SIGN UP
   static Future<Map<String, dynamic>> registerUser({
+    required String email,
     required String username,
     required String password,
-    required String email,
+    required String fullName,
+    required String phoneNumber,
+    required String age,
+    required String address,
+    required String category,
   }) async {
     final url = Uri.parse('$baseUrl/users/signup');
 
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'username': username, 'password': password, 'email': email}),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": email,
+        "username": username,
+        "password": password,
+        "fullName": fullName,
+        "phoneNumber": phoneNumber,
+        "age": age,
+        "address": address,
+        "category": category, // 'artist' or 'regular'
+      }),
     );
 
     if (response.statusCode == 201) {
@@ -161,15 +181,22 @@ class ApiService {
 
   // Fetch posts
   static Future<List<Post>> fetchPosts() async {
-    final response = await http.get(Uri.parse('$baseUrl/posts'));
+  final token = await getToken(); // Securely retrieve your JWT token
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Post.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to fetch posts');
-    }
+  final response = await http.get(
+    Uri.parse('$baseUrl/posts'),
+    headers: {
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((json) => Post.fromJson(json)).toList();
+  } else {
+    throw Exception('Failed to fetch posts');
   }
+}
 
   // Fetch vault items
   static Future<List<VaultItem>> fetchVaultItems() async {

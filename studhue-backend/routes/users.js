@@ -13,12 +13,12 @@ module.exports = function (db) {
   });
 
   // Signup with duplicate check
-router.post('/signup', async (req, res) => {
-  const { email, username, password } = req.body;
+  router.post('/signup', async (req, res) => {
+    const { email, username, password, fullName, phoneNumber, age, address, category } = req.body;
 
-  if (!email || !username || !password) {
-    return res.status(400).json({ message: 'Missing fields' });
-  }
+    if (!email || !username || !password || !fullName || !phoneNumber || !age || !address || !category) {
+      return res.status(400).json({ message: 'Missing fields' });
+    }
 
   // Check if username or email already exists
   db.get('SELECT * FROM Users WHERE username = ? OR email = ?', [username, email], async (err, existingUser) => {
@@ -34,8 +34,8 @@ router.post('/signup', async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       db.run(
-        'INSERT INTO Users (user_ID, email, username, password, account_date_creation) VALUES (?, ?, ?, ?, ?)',
-        [Date.now().toString(), email, username, hashedPassword, new Date().toISOString()],
+        'INSERT INTO Users (user_ID, email, username, full_Name, phone_Number, age, address, category, password, account_date_creation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [Date.now().toString(), email, username, fullName, phoneNumber, age, address, category, hashedPassword, new Date().toISOString()],
         function (err) {
           if (err) {
             return res.status(500).json({ message: 'Signup failed', error: err.message });
@@ -49,7 +49,6 @@ router.post('/signup', async (req, res) => {
     }
   });
   });
-
 
   // Login
   router.post('/login', (req, res) => {

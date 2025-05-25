@@ -16,16 +16,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final ageController = TextEditingController();
   final passwordController = TextEditingController();
   final addressController = TextEditingController();
-  final categoryController = TextEditingController();
+  final artistCategoryController = TextEditingController();
 
+  String? _userType; // 'regular' or 'artist'
   bool isLoading = false;
 
   void _handleSignUp() async {
     final email = emailController.text.trim();
     final username = usernameController.text.trim();
     final password = passwordController.text.trim();
+    final phoneNumber = phoneNumberController.text.trim();
+    final fullName = fullNameController.text.trim();
+    final age = ageController.text.trim();
+    final address = addressController.text.trim();
+    final userType = _userType;
+    final artistCategory = artistCategoryController.text.trim();
 
-    if (email.isEmpty || username.isEmpty || password.isEmpty) {
+    if (email.isEmpty ||
+        username.isEmpty ||
+        password.isEmpty ||
+        phoneNumber.isEmpty ||
+        fullName.isEmpty ||
+        age.isEmpty ||
+        address.isEmpty ||
+        userType == null ||
+        (userType == 'artist' && artistCategory.isEmpty)) {
       _showDialog('All fields are required');
       return;
     }
@@ -37,6 +52,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         email: email,
         username: username,
         password: password,
+        fullName: fullName,
+        phoneNumber: phoneNumber,
+        age: age,
+        address: address,
+        category: userType == 'artist' ? artistCategory : 'regular',
       );
       _showDialog('Signup success: ${result['message'] ?? 'Account created!'}');
     } catch (e) {
@@ -45,6 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() => isLoading = false);
     }
   }
+
 
   void _showDialog(String message) {
     showDialog(
@@ -107,7 +128,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const SizedBox(height: 15),
                         _buildInputField('Address', addressController),
                         const SizedBox(height: 15),
-                        _buildInputField('Category', categoryController),
+                        // User Type Radios
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Register as:",
+                              style: TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                            ListTile(
+                              title: const Text("Regular User", style: TextStyle(color: Colors.white)),
+                              leading: Radio<String>(
+                                fillColor: WidgetStateProperty.all(Colors.white),
+                                value: 'regular',
+                                groupValue: _userType,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _userType = value;
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text("Artist", style: TextStyle(color: Colors.white)),
+                              leading: Radio<String>(
+                                fillColor: WidgetStateProperty.all(Colors.white),
+                                value: 'artist',
+                                groupValue: _userType,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _userType = value;
+                                  });
+                                },
+                              ),
+                            ),
+                            if (_userType == 'artist') ...[
+                              const SizedBox(height: 10),
+                              _buildInputField('Artist Category (e.g. Illustrator, Musician)', artistCategoryController),
+                            ],
+                          ],
+                        ),
                       ],
                     ),
                   ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart'; // must define VaultItem and fetchVaultItems()
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class ArtVault extends StatefulWidget {
   const ArtVault({super.key});
@@ -69,44 +71,58 @@ class ArtVaultState extends State<ArtVault> {
           );
         },
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          width: double.infinity,
-          height: 60,
-          color: Colors.white,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.home),
-                onPressed: () {
-                  Navigator.pushNamed(context, "/home");
-                },
+      bottomNavigationBar: Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha((0.5 * 255).round()),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {},
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.home),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/home");
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(CupertinoIcons.pin),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/pinboards");
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_box_outlined),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(LucideIcons.vault),
+                    color: const Color.fromRGBO(20, 193, 225, 100),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/vault");
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.person_outline),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/profile");
+                    },
+                  ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.add_box_outlined),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.developer_board_rounded),
-                onPressed: () {
-                  Navigator.pushNamed(context, "/vault");
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.person_outline),
-                onPressed: () {
-                  Navigator.pushNamed(context, "/profile");
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 }

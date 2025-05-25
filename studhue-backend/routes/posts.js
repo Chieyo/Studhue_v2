@@ -142,6 +142,32 @@ module.exports = function(db) {
     });
   });
 
+  // Get all posts
+  router.get('/', authenticateToken, (req, res) => {
+    const query = `
+      SELECT 
+        Posts.post_id,
+        Posts.user_id,
+        Posts.caption,
+        Posts.post_type,
+        Posts.post_date,
+        Users.username,
+        Users.profile_picture
+      FROM Posts
+      JOIN Users ON Posts.user_id = Users.user_id
+      ORDER BY Posts.post_date DESC
+    `;
+
+    db.all(query, [], (err, rows) => {
+      if (err) {
+        console.error('DB error fetching posts:', err.message);
+        return res.status(500).json({ message: 'DB error fetching posts' });
+      }
+
+      res.json(rows);
+    });
+  });
+
   return router;
 };
 

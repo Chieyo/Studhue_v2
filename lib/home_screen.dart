@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart'; // Import your existing API service
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,6 +42,10 @@ class HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.search),
             onPressed: _toggleSearchBar,
           ),
+          IconButton(icon: const Icon(Icons.chat_bubble_outline), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.notifications_none_outlined), onPressed: () {
+            Navigator.pushNamed(context, "/notifications");
+          }),
         ],
       ),
       body: Stack(
@@ -98,18 +104,23 @@ class HomeScreenState extends State<HomeScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.home),
-                    onPressed: () {},
+                    color: const Color.fromRGBO(20, 193, 225, 100),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/home");
+                    },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: _toggleSearchBar,
+                    icon: const Icon(CupertinoIcons.pin),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/pinboards");
+                    },
                   ),
                   IconButton(
                     icon: const Icon(Icons.add_box_outlined),
                     onPressed: () {},
                   ),
                   IconButton(
-                    icon: const Icon(Icons.developer_board_rounded),
+                    icon: const Icon(LucideIcons.vault),
                     onPressed: () {
                       Navigator.pushNamed(context, "/vault");
                     },

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'profile.dart';
-import 'home_screen.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:flutter/cupertino.dart';
 import 'api_service.dart';
 
 class PinboardsScreen extends StatefulWidget {
@@ -37,11 +36,13 @@ class _PinboardsScreenState extends State<PinboardsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Image.asset('graphics/Logo 2 B.png', width: 40, height: 40),
+                  Image.asset('graphics/Homeheader.png',  height: 32),
                   Row(
                     children: [
                       IconButton(icon: const Icon(Icons.chat_bubble_outline), onPressed: () {}),
-                      IconButton(icon: const Icon(Icons.notifications_none_outlined), onPressed: () {}),
+                      IconButton(icon: const Icon(Icons.notifications_none_outlined), onPressed: () {
+                      Navigator.pushNamed(context, "/notifications");
+                    },),
                     ],
                   ),
                 ],
@@ -126,7 +127,7 @@ class _PinboardsScreenState extends State<PinboardsScreen> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             gradient: LinearGradient(
-                              colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                              colors: [Colors.black.withAlpha((0.7 * 255).round()), Colors.transparent],
                               begin: Alignment.bottomCenter,
                               end: Alignment.topCenter,
                             ),
@@ -157,37 +158,58 @@ class _PinboardsScreenState extends State<PinboardsScreen> {
       ),
 
       // Bottom Nav
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.grey, width: 0.5)),
-          color: Colors.white,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.home_outlined),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-              },
+      bottomNavigationBar: Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha((0.5 * 255).round()),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.home),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/home");
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(CupertinoIcons.pin),
+                    color: const Color.fromRGBO(20, 193, 225, 100),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/pinboards");
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_box_outlined),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(LucideIcons.vault),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/vault");
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.person_outline),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/profile");
+                    },
+                  ),
+                ],
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.push_pin_outlined),
-              color: const Color.fromRGBO(20, 193, 225, 100),
-              onPressed: () {},
-            ),
-            IconButton(icon: const Icon(Icons.add), onPressed: () {}),
-            IconButton(icon: const Icon(LucideIcons.vault), onPressed: () {}),
-            IconButton(
-              icon: const Icon(LucideIcons.user),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen()));
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 }
